@@ -10,6 +10,6 @@ int getDifficult() {
 
 void setDifficult(int value) {
     if (value >= 0){
-        difficulty = value / NUMBERS_OF_DIFFICULTIES;
+        difficulty = value % NUMBERS_OF_DIFFICULTIES;
     }
 }
