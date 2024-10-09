@@ -1,1 +1,8 @@
+*/*.o/*
+*/.DS_Store/*
 .DS_Store
+*.o
+src/Tests/*.o
+src/iot_project_1/*.o
+progetto
+.vscode/*
