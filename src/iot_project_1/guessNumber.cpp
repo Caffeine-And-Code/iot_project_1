@@ -1,8 +1,8 @@
 #include <cstdlib>
 #include <ctime>
 
-static const int MAX = 16;
-static const int MIN = 1;
+static const int MAX = 15;
+static const int MIN = 0;
 
 static int currentNumber;
 

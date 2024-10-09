@@ -1,4 +1,5 @@
 #!/bin/bash
+clear
 
 # Compilazione del file sorgente
 echo "Compilando i file..."

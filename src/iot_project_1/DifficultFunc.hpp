@@ -5,4 +5,6 @@ void setDifficult(int value);
 
 int getDifficult();
 
+int getMillisecondsBasedByScore(int score);
+
 #endif
