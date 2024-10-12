@@ -6,7 +6,7 @@ PROJECT_DIR = $(SRC_DIR)/iot_project_1
 TEST_DIR = $(SRC_DIR)/Tests
 
 # File sorgenti
-SRCS = $(TEST_DIR)/Tester.cpp $(PROJECT_DIR)/DifficultFunc.cpp
+SRCS = $(TEST_DIR)/Tester.cpp $(PROJECT_DIR)/DifficultFunc.cpp $(PROJECT_DIR)/guessNumber.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 # Nome dell'eseguibile
@@ -22,6 +22,9 @@ $(TARGET): $(OBJS)
 # Regola per compilare i file sorgente in file oggetto
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+run: $(TARGET)
+	./$(TARGET)
 
 # Pulizia dei file generati
 clean:

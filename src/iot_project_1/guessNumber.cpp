@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <ctime>
+#include "guessNumber.hpp"
 
 static const int MAX = 15;
 static const int MIN = 0;

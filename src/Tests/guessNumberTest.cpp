@@ -1,4 +1,4 @@
-#include "./../iot_project_1/guessNumber.hpp"
+#include "guessNumber.hpp"
 #include <iostream>
 
 void testCheckNumer()
