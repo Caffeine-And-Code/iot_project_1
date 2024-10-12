@@ -1,4 +1,3 @@
-#include <stdexcept>
 #include "guessNumber.hpp"
 #include "controllers.hpp"
 #include "DifficultFunc.hpp"
@@ -65,10 +64,6 @@ bool isLedActive(int index)
         {
             return ledValues[index];
         }
-        else
-        {
-            throw std::invalid_argument("invalid index value");
-        }
     }
     return false;
 }
@@ -124,10 +119,6 @@ void pressButton(int index)
         if (index >= 0 && index < getLedNumber())
         {
             ledValues[index] = true;
-        }
-        else
-        {
-            throw std::invalid_argument("invalid index value");
         }
     }
 }

@@ -1,6 +1,5 @@
 #include "controllers.hpp"
-#include <string>
-#include LiquidCrystal_I2C.h
+#include "LiquidCrystal_I2C.h"
 
 #define GO_PROMPT_TIME 500
 #define GAME_OVER_TIME 1000
@@ -40,12 +39,15 @@ void setup()
 
     lcd.init();
     lcd.backlight();
+    randomSeed(analogRead(0));
+
 }
 
 void loop()
 {
     if (isTest)
     {
+      random(1,10);
         testComponentLoop();
     }
     else

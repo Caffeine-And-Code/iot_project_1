@@ -1,5 +1,4 @@
 #include "DifficultFunc.hpp"
-#include <iostream>
 
 #define NUMBERS_OF_DIFFICULTIES 4
 // 10 secondi di dafault
@@ -26,8 +25,6 @@ void setDifficult(int value) {
                 return;
             }
         }
-    } else {
-        throw new std::invalid_argument("Value must be between 0 and 1023, got " + std::to_string(value) + " instead");
     }
 }
 

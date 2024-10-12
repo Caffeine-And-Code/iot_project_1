@@ -1,16 +1,13 @@
-#include <cstdlib>
-#include <ctime>
 #include "guessNumber.hpp"
 
-static const int MAX = 15;
+static const int MAX = 16;
 static const int MIN = 0;
 
 static int currentNumber;
 
 int generateNumber()
 {
-    std::srand(static_cast<unsigned>(std::time(0)));
-    currentNumber = (std::rand() % MAX) + MIN;
+    currentNumber = random(MIN, MAX);
 
     return currentNumber;
 }
