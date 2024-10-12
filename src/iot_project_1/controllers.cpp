@@ -86,7 +86,7 @@ void startGame()
     else if (isAboutToStart())
     {
         gameState = IN_GAME;
-        _extractNumber();
+        extractNumber();
     }
     else if (isGameOver())
     {
@@ -137,10 +137,10 @@ bool move()
     bool correct = checkBinary(ledValues[0], ledValues[1], ledValues[2], ledValues[3]);
     if (correct)
     {
-        _resetLed();
+        resetLed();
         // TODO: NEXT NUMBER
         currentScore++;
-        _extractNumber();
+        extractNumber();
         gameState = CORRECT_ANSWER;
     }
     else
@@ -171,12 +171,12 @@ int getLedNumber()
 
 // private methods
 
-int _extractNumber()
+int extractNumber()
 {
     return generateNumber();
 }
 
-void _resetLed()
+void resetLed()
 {
     ledValues[0] = 0;
     ledValues[1] = 0;

@@ -16,3 +16,5 @@ bool move();
 void resume();
 void setSleep();
 int getLedNumber();
+int extractNumber();
+void resetLed();
