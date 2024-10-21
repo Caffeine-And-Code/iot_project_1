@@ -191,7 +191,7 @@ int extractNumber()
 
 void resetLed()
 {
-    for (int &led : ledValues) 
+    for (bool &led : ledValues) 
     {
         led = false;
     }
