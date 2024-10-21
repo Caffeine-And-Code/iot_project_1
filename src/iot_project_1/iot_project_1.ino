@@ -3,8 +3,8 @@
 #include "math.h"
 
 #define GO_PROMPT_TIME 1000
-#define GAME_OVER_TIME 1000
-#define CORRECT_ANSWER_TIME 500
+#define GAME_OVER_TIME 10000
+#define CORRECT_ANSWER_TIME 2000
 #define INTERUPT_DELAY 40
 
 const int statusLed = 5;
@@ -121,20 +121,39 @@ void printNumber(int number)
   lcd.setCursor(0, 2);
   lcd.print("                    ");
   lcd.setCursor(0, 3);
-  lcd.print("MILLIS: ");
-  lcd.setCursor(8, 3);
+  lcd.print("MAX MILLIS: ");
+  lcd.setCursor(12, 3);
   auto time = getTimer();
   lcd.print(getTimer());
   const int decs[] = {4,3,2,1};
-  int curr = 8;
+  int curr = 12;
   for (int dec:decs){
     if(time < pow(10, dec)){
       curr++;
       lcd.print(" ");
     }
   }
-  
-  
+}
+
+void printGoodScore()
+{
+  lcd.setCursor(0, 0);
+  lcd.print("                    ");
+  lcd.setCursor(0, 1);
+  lcd.print("GOOD! Score: ");
+  lcd.setCursor(13, 1);
+  auto score = getScore();
+  lcd.print(score);
+  if ( score < 10 ){
+    lcd.setCursor(14, 1);
+    lcd.print(" ");
+  }
+  lcd.setCursor(15, 1);
+  lcd.print("     ");
+  lcd.setCursor(0, 2);
+  lcd.print("                    ");
+  lcd.setCursor(0, 3);
+  lcd.print("                    ");
 }
 
 void printGameOver(int score)
@@ -143,8 +162,8 @@ void printGameOver(int score)
   lcd.setCursor(0, 0);
   lcd.print("Game Over");
   lcd.setCursor(0, 1);
-  lcd.print("Score: ");
-  lcd.setCursor(7, 1);
+  lcd.print("Final Score: ");
+  lcd.setCursor(14, 1);
   lcd.print(score);
 }
 
@@ -335,7 +354,6 @@ void setup()
 
 void loop()
 {
-  log("Loop");
   Serial.println(getGameState());
   if (isTest)
   {
@@ -373,19 +391,17 @@ void loop()
     }
     else if (isCorrectAnswer())
     {
+      printGoodScore();
       delay(CORRECT_ANSWER_TIME);
-      alrPrintedNum = false;
       resume();
       update_timer_1(getTimer());
       restart_timer_1();
     }
     else if (isGameOver())
     {
-      log("Game Over");
       printGameOver(getScore());
       triggerStatusLed();
       delay(5000);
-      alrPrintedNum = false;
       startGame();
     }
   }
