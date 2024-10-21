@@ -161,7 +161,9 @@ void handleB1Press()
   long ts = millis();
   if (ts - prevB1PressCheck > INTERUPT_DELAY)
   {
-    startGame();
+    if(isWaitingForStart()){
+      startGame();
+    }
     prevB1PressCheck = ts;
   }
 }
