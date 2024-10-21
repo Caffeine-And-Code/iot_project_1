@@ -11,7 +11,7 @@
 #define GAME_OVER 5
 #define WAIT_RESULT 6
 
-bool ledValues[4] = {false, false, false, false};
+bool ledValues[] = {false, false, false, false};
 
 short unsigned int gameState = WAITING_FOR_START;
 // 0 -> Wait For Start
@@ -191,8 +191,8 @@ int extractNumber()
 
 void resetLed()
 {
-    ledValues[0] = false;
-    ledValues[1] = false;
-    ledValues[2] = false;
-    ledValues[3] = false;
+    for (int &led : ledValues) 
+    {
+        led = false;
+    }
 }
