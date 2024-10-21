@@ -47,18 +47,20 @@ void turnoOfAllLeds()
 
 void pulseStatusLed()
 {
-  unsigned long currentMillis = millis();
-  // adjust each delay seconds
-  if (currentMillis - lastMillis >= Fadedelay)
+  // unsigned long currentMillis = millis();
+  // // adjust each delay seconds
+  // if (currentMillis - lastMillis >= Fadedelay)
+  // {
+    
+  // }
+
+  analogWrite(statusLed, brightness);
+  brightness = brightness + fadeAmount;
+  if (brightness == 0 || brightness == 255)
   {
-    analogWrite(statusLed, brightness);
-    brightness = brightness + fadeAmount;
-    if (brightness == 0 || brightness == 255)
-    {
-      fadeAmount = -fadeAmount;
-    }
-    lastMillis = millis();
+    fadeAmount = -fadeAmount;
   }
+  lastMillis = millis();
 }
 
 void triggerStatusLed()
