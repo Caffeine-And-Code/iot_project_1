@@ -1,6 +1,7 @@
 #include "controllers.hpp"
 #include <LiquidCrystal_I2C.h>
 #include "math.h"
+#include <avr/sleep.h>
 
 #define GO_PROMPT_TIME 1000
 #define GAME_OVER_TIME 10000
@@ -275,8 +276,25 @@ void testComponentLoop()
   }
 }
 
-int freq = 1;
-int count = 0;
+void goToSleepMyLittleBaby(){
+  
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN); // sleep mode is set here
+  sleep_enable(); // enables the sleep bit in the mcucr register
+  // so sleep is possible. just a safety pin
+  // wakeUpNow when pin 2 gets LOW
+  sleep_mode(); // here the device is actually put to sleep!!
+  // THE PROGRAM CONTINUES FROM HERE AFTER WAKING UP
+  sleep_disable(); // first thing after waking from sleep:
+  // disable sleep...
+
+  // wakeUpNow code will not be executed
+  // during normal running time.
+}
+
+void gotoSleepHandler(){
+  Serial.println("lalalala");
+  setSleep();
+}
 
 void update_timer_1(int milli_sec)
 {
@@ -322,9 +340,64 @@ void restart_timer_1()
   TCCR1B |= (1 << CS12) | (1 << CS10);
 }
 
+// ISR for Timer 2 compare match
 ISR(TIMER1_COMPA_vect)
 {
-  handleMoveTimerEnd();
+  handleMoveTimerEnd();  // User-defined function to handle the end of the timer
+}
+
+void update_timer_2(int milli_sec)
+{
+  long frequency = 1000 / milli_sec;          // Frequency in Hz
+  OCR2A = (16000000 / (1024 * frequency)) - 1; // Calculate the correct OCR2A value
+}
+
+void setup_timer_2(int milli_sec)
+{
+  // Disable interrupts
+  cli();
+  
+  TCCR2A = 0; // Clear TCCR2A register
+  TCCR2B = 0; // Clear TCCR2B register
+  TCNT2 = 0;  // Initialize counter value to 0
+
+  /*
+   * Set compare match register OCR2A based on the formula
+   * OCR2A = (16MHz / (PRESCALER * frequency)) - 1
+   * For a prescaler of 1024:
+   * OCR2A = (16MHz / (1024 * frequency)) - 1
+   */
+  update_timer_2(milli_sec);
+
+  // Set CTC mode
+  TCCR2A |= (1 << WGM21);
+
+  // Set CS22 and CS21 for 1024 prescaler
+  TCCR2B |= (1 << CS22) | (1 << CS21) | (1 << CS20);
+
+  // Enable timer compare interrupt
+  TIMSK2 |= (1 << OCIE2A);
+
+  // Enable interrupts
+  sei();
+}
+
+void stop_timer_2()
+{
+  // Clear the clock select bits to stop the timer (CS22, CS21, CS20 in TCCR2B)
+  TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
+}
+
+void restart_timer_2()
+{
+  // Resume the timer by setting the prescaler to 1024
+  TCCR2B |= (1 << CS22) | (1 << CS21) | (1 << CS20);
+}
+
+// ISR for Timer 2 compare match
+ISR(TIMER2_COMPA_vect)
+{
+  gotoSleepHandler();
 }
 
 void setup()
@@ -349,14 +422,16 @@ void setup()
   if (!isTest)
   {
     attachInterrupt(digitalPinToInterrupt(buttons[0]), handleB1Press, RISING);
+    
     setup_timer_1(1000);
-    stop_timer_1();
+    Serial.println("for fuck sake");
+    setup_timer_2(2000);
+    
   }
 }
 
 void loop()
 {
-  Serial.println(getGameState());
   if (isTest)
   {
     random(1, 10);
@@ -366,7 +441,9 @@ void loop()
   {
     if (isSleeping())
     {
-      // DO NOTHING, SLEEP
+      Serial.println("Before sleep");
+      goToSleepMyLittleBaby();
+      Serial.println("After sleep");
     }
     else if (isWaitingForStart())
     {
