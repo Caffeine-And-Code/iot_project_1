@@ -97,6 +97,7 @@ void startGame()
     }
     else if (isAboutToStart())
     {
+        currentScore = 0;
         gameState = IN_GAME;
         extractNumber();
     }

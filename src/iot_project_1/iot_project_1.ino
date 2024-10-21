@@ -1,7 +1,8 @@
 #include "controllers.hpp"
 #include <LiquidCrystal_I2C.h>
+#include "math.h"
 
-#define GO_PROMPT_TIME 500
+#define GO_PROMPT_TIME 1000
 #define GAME_OVER_TIME 1000
 #define CORRECT_ANSWER_TIME 500
 #define INTERUPT_DELAY 40
@@ -82,7 +83,7 @@ void printWelcomeMessage()
     lcd.setCursor(0, 1);
     lcd.print("Guess My Binary!    ");
     lcd.setCursor(0, 2);
-    lcd.print("Press B1, Start     ");
+    lcd.print("Press B1 to start   ");
     lcd.setCursor(0, 3);
     lcd.print("Diff: ");
     lcd.setCursor(6, 3);
@@ -94,9 +95,9 @@ void printWelcomeMessage()
 void printGo()
 {
   lcd.setCursor(0, 0);
-  lcd.print("GO!                 ");
-  lcd.setCursor(0, 1);
   lcd.print("                    ");
+  lcd.setCursor(0, 1);
+  lcd.print("        GO!         ");
   lcd.setCursor(0, 2);
   lcd.print("                    ");
   lcd.setCursor(0, 3);
@@ -106,20 +107,34 @@ void printGo()
 void printNumber(int number)
 {
   lcd.setCursor(0, 0);
+  lcd.print("Guess ->  "); 
+  lcd.setCursor(10, 0);
+  
+  if(number < 10){
+    lcd.print("0"); 
+  }
   lcd.print(number); 
-  if(number >= 10){
-    lcd.setCursor(2, 0);
-  }
-  else {
-    lcd.setCursor(1, 0);
-  }
+  lcd.setCursor(12, 0);
   lcd.print("              "); 
   lcd.setCursor(0, 1);
   lcd.print("                    ");
   lcd.setCursor(0, 2);
   lcd.print("                    ");
   lcd.setCursor(0, 3);
-  lcd.print("                    ");
+  lcd.print("MILLIS: ");
+  lcd.setCursor(8, 3);
+  auto time = getTimer();
+  lcd.print(getTimer());
+  const int decs[] = {4,3,2,1};
+  int curr = 8;
+  for (int dec:decs){
+    if(time < pow(10, dec)){
+      curr++;
+      lcd.print(" ");
+    }
+  }
+  
+  
 }
 
 void printGameOver(int score)
@@ -188,10 +203,8 @@ void gameRoutine()
 
 void handleMoveTimerEnd()
 {
-  log("Trigger #1");
   if (isGameStarted())
   {
-    log("Trigger #2");
     setIsWaitResult();
   }
 }
@@ -345,8 +358,6 @@ void loop()
       turnoOfAllLeds();
       delay(GO_PROMPT_TIME);
       startGame();
-      log("New Timer");
-      log(getTimer());
       update_timer_1(getTimer());
       restart_timer_1();
     }
