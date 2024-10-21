@@ -180,6 +180,28 @@ void updatePotentiometerDifficult()
   updateDifficult(value);
 }
 
+void prepareSleepMode()
+{
+  for (int led : leds)
+  {
+    digitalWrite(led, LOW);
+  }
+  digitalWrite(statusLed, LOW);
+  lcd.noBacklight();
+  lcd.setCursor(0, 0);
+  lcd.print("                     ");
+  lcd.setCursor(0, 1);
+  lcd.print("                     ");
+  lcd.setCursor(0, 2);
+  lcd.print("                     ");
+  lcd.setCursor(0, 3);
+  lcd.print("                     ");
+}
+
+void prepareForWakeUp()
+{
+  lcd.backlight();
+}
 /// HANDLERS
 long prevB1PressCheck = 0;
 void handleB1Press()
@@ -393,8 +415,11 @@ void loop()
     if (isSleeping())
     {
       Serial.println("Before sleep");
+      prepareSleepMode();
       goToSleepMyLittleBaby();
+      prepareForWakeUp();
       Serial.println("After sleep");
+      lastButtonClick = millis();
     }
     else if (isWaitingForStart())
     {
@@ -445,6 +470,7 @@ void loop()
       triggerStatusLed();
       delay(5000);
       startGame();
+      lastButtonClick = millis();
     }
   }
 }
