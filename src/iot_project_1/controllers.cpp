@@ -105,10 +105,6 @@ void startGame()
     {
         gameState = WAITING_FOR_START;
     }
-    else
-    {
-        Serial.println("GS:" + gameState);
-    }
 }
 
 int getExtractedNumber()
@@ -181,8 +177,6 @@ int getLedNumber()
 {
     return sizeof(ledValues) / sizeof(ledValues[0]);
 }
-
-// private methods
 
 int extractNumber()
 {

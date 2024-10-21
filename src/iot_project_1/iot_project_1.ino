@@ -17,7 +17,7 @@ const int leds[] = {8, 9, 10, 11};
 bool isButtonPressed[] = {false, false, false, false};
 
 // Status led Fading variables
-int brightness = 0; // how bright the LED is
+int brightness = 0;
 int fadeAmount = 12;
 int Fadedelay = 30;
 unsigned long lastMillis = 0;
@@ -201,12 +201,10 @@ void gameRoutine()
 
   for (int i = 0; i < getLedNumber(); i++)
   {
-    // checkout pressed button
     if (digitalRead(buttons[i]) == HIGH)
     {
       if (isButtonPressed[i] == false)
       {
-        // has started pressing now
         pressButton(i);
       }
       isButtonPressed[i] = true;
@@ -267,7 +265,6 @@ void testComponentLoop()
     }
   }
 
-  // cleanScreen();
   lcd.setCursor(0, 1);
   lcd.print("TEST: P: ");
 
@@ -283,19 +280,11 @@ void testComponentLoop()
 
 void goToSleepMyLittleBaby()
 {
-
-  set_sleep_mode(SLEEP_MODE_PWR_DOWN); // sleep mode is set here
-  sleep_enable();                      // enables the sleep bit in the mcucr register
-  // so sleep is possible. just a safety pin
-  // wakeUpNow when pin 2 gets LOW
-  sleep_mode(); // here the device is actually put to sleep!!
-  // THE PROGRAM CONTINUES FROM HERE AFTER WAKING UP
-  sleep_disable(); // first thing after waking from sleep:
-  // disable sleep...
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+  sleep_enable();
+  sleep_mode();
+  sleep_disable();
   startGame();
-
-  // wakeUpNow code will not be executed
-  // during normal running time.
 }
 
 void gotoSleepHandler()
@@ -306,51 +295,37 @@ void gotoSleepHandler()
 void update_timer_1(int milli_sec)
 {
   long frequency = 1000 / milli_sec;           // Frequency in Hz
-  OCR1A = (16000000 / (1024 * frequency)) - 1; // Calculate the correct OCR1A value
+  OCR1A = (16000000 / (1024 * frequency)) - 1;
 }
 
 void setup_timer_1(int milli_sec)
 {
-  // disabling interrupt
   cli();
-  TCCR1A = 0; // set entire TCCR1A register to 0
-  TCCR1B = 0; // same for TCCR1B
-  TCNT1 = 0;  // initialize counter value to 0
-  /*
-   * set compare match register
-   * OCR1A = (16*2^20) / (100*PRESCALER) - 1
-   * (must be < 65536)
-   * by assuming a prescaler = 1024, then
-   * OCR1A = (16*2^10)/freq
-   */
+  TCCR1A = 0;
+  TCCR1B = 0;
+  TCNT1 = 0;
+
   update_timer_1(milli_sec);
 
-  // turn on CTC mode
   TCCR1B |= (1 << WGM12);
-  // Set CS11 for 1024 prescaler
   TCCR1B |= (1 << CS12) | (1 << CS10);
-  // enable timer compare interrupt
   TIMSK1 |= (1 << OCIE1A);
-  // enabling interrupt
   sei();
 }
 
 void stop_timer_1()
 {
-  // Clear the clock bits to stop the timer (CS12, CS11, CS10 in TCCR1B)
   TCCR1B &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
 }
 
 void restart_timer_1()
 {
-  // Resume the timer by setting the prescaler to 1024
   TCCR1B |= (1 << CS12) | (1 << CS10);
 }
 
-// ISR for Timer 2 compare match
 ISR(TIMER1_COMPA_vect)
 {
-  handleMoveTimerEnd(); // User-defined function to handle the end of the timer
+  handleMoveTimerEnd();
 }
 
 void setup()
@@ -392,9 +367,7 @@ void loop()
   {
     if (isSleeping())
     {
-      Serial.println("Before sleep");
       goToSleepMyLittleBaby();
-      Serial.println("After sleep");
     }
     else if (isWaitingForStart())
     {

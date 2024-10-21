@@ -1,7 +1,7 @@
 #include "DifficultFunc.hpp"
 
 #define NUMBERS_OF_DIFFICULTIES 6
-// 10 secondi di dafault
+// 10 seconds by default
 #define MILLISECONDS_STARTING_VALUE 10000
 #define ANALOG_MAX_VALUE 1023
 #define ANALOG_MIN_VALUE 0
