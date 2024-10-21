@@ -11,7 +11,7 @@
 
 bool ledValues[] = {false, false, false, false};
 
-short unsigned int gameState = 0;
+short unsigned int gameState = WAITING_FOR_START;
 // 0 -> Wait For Start
 // 1 -> Sleep Mode
 // 2 -> About To Start
@@ -118,7 +118,7 @@ void pressButton(int index)
     {
         if (index >= 0 && index < getLedNumber())
         {
-            ledValues[index] = true;
+            ledValues[index] = !ledValues[index];
         }
     }
 }

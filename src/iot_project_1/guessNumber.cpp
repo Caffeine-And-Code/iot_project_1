@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "guessNumber.hpp"
 
 static const int MAX = 16;
