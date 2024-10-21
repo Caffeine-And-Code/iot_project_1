@@ -27,11 +27,7 @@ bool checkBinary(bool b3, bool b2, bool b1, bool b0)
         return false;
     }
 
-    // Convert the integer to binary and compare with the booleans
-    bool bit3 = currentNumber & 0b1000; // 4th bit (most significant)
-    bool bit2 = currentNumber & 0b0100; // 3rd bit
-    bool bit1 = currentNumber & 0b0010; // 2nd bit
-    bool bit0 = currentNumber & 0b0001; // 1st bit (least significant)
-
-    return (bit3 == b3) && (bit2 == b2) && (bit1 == b1) && (bit0 == b0);
+    int actNumber = 8*b3 + 4*b2 + 2*b1 + b0;
+    Serial.println(actNumber);
+    return currentNumber == actNumber;
 }

@@ -1,6 +1,7 @@
 #include "guessNumber.hpp"
 #include "controllers.hpp"
 #include "DifficultFunc.hpp"
+#include "Arduino.h"
 
 #define WAITING_FOR_START 0
 #define SLEEP_MODE 1
@@ -8,8 +9,9 @@
 #define IN_GAME 3
 #define CORRECT_ANSWER 4
 #define GAME_OVER 5
+#define WAIT_RESULT 6
 
-bool ledValues[] = {false, false, false, false};
+bool ledValues[4] = {false, false, false, false};
 
 short unsigned int gameState = WAITING_FOR_START;
 // 0 -> Wait For Start
@@ -20,6 +22,11 @@ short unsigned int gameState = WAITING_FOR_START;
 // 5 -> Game Over
 
 int currentScore = 0;
+
+int getGameState()
+{
+    return gameState;
+}
 
 bool isGameStarted()
 {
@@ -49,6 +56,16 @@ bool isGameOver()
 bool isWaitingForStart()
 {
     return gameState == WAITING_FOR_START;
+}
+
+bool isWaitResult()
+{
+    return gameState == WAIT_RESULT;
+}
+
+void setIsWaitResult()
+{
+    gameState = WAIT_RESULT;
 }
 
 int getScore()
@@ -85,7 +102,11 @@ void startGame()
     }
     else if (isGameOver())
     {
-        gameState == ABOUT_TO_START;
+        gameState = WAITING_FOR_START;
+    }
+    else
+    {
+        Serial.println("GS:" + gameState);
     }
 }
 
@@ -126,10 +147,9 @@ void pressButton(int index)
 bool move()
 {
     bool correct = checkBinary(ledValues[0], ledValues[1], ledValues[2], ledValues[3]);
+
     if (correct)
     {
-        resetLed();
-        // TODO: NEXT NUMBER
         currentScore++;
         extractNumber();
         gameState = CORRECT_ANSWER;
@@ -138,6 +158,7 @@ bool move()
     {
         gameState = GAME_OVER;
     }
+    resetLed();
 
     return correct;
 }
@@ -169,8 +190,8 @@ int extractNumber()
 
 void resetLed()
 {
-    ledValues[0] = 0;
-    ledValues[1] = 0;
-    ledValues[2] = 0;
-    ledValues[3] = 0;
+    ledValues[0] = false;
+    ledValues[1] = false;
+    ledValues[2] = false;
+    ledValues[3] = false;
 }
