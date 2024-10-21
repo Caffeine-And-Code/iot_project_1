@@ -21,6 +21,7 @@ int brightness = 0; // how bright the LED is
 int fadeAmount = 5;
 int Fadedelay = 30;
 unsigned long lastMillis = 0;
+bool alrPrintedWelcome = false;
 
 const bool verbose = false;
 
@@ -202,11 +203,15 @@ void cleanScreen()
 
 void printWelcomeMessage()
 {
-    cleanScreen();
-    lcd.setCursor(0, 1);
-    lcd.print("Welcome to GMB!");
-    lcd.setCursor(0, 2);
-    lcd.print("Press B1, Start");
+    if (!alrPrintedWelcome)
+    {
+      alrPrintedWelcome = true;
+      cleanScreen();
+      lcd.setCursor(0, 1);
+      lcd.print("Welcome to GMB!");
+      lcd.setCursor(0, 2);
+      lcd.print("Press B1, Start");
+    }
 }
 
 void printGo()
