@@ -8,6 +8,7 @@ static int currentNumber;
 
 int generateNumber()
 {
+    randomSeed(micros());
     currentNumber = random(MIN, MAX);
 
     return currentNumber;

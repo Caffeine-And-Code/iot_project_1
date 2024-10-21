@@ -77,7 +77,7 @@ void loop()
     {
       log("App in component test mode");
       random(1,10);
-        testComponentLoop();
+      testComponentLoop();
     }
     else
     {
