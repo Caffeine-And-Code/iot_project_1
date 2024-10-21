@@ -81,18 +81,18 @@ void cleanScreen()
 
 void printWelcomeMessage()
 {
-    lcd.setCursor(0, 0);
-    lcd.print("Welcome to          ");
-    lcd.setCursor(0, 1);
-    lcd.print("Guess My Binary!    ");
-    lcd.setCursor(0, 2);
-    lcd.print("Press B1 to start   ");
-    lcd.setCursor(0, 3);
-    lcd.print("Diff: ");
-    lcd.setCursor(6, 3);
-    lcd.print(getCurrentDifficult());  
-    lcd.setCursor(8, 3);
-    lcd.print("            ");
+  lcd.setCursor(0, 0);
+  lcd.print("Welcome to          ");
+  lcd.setCursor(0, 1);
+  lcd.print("Guess My Binary!    ");
+  lcd.setCursor(0, 2);
+  lcd.print("Press B1 to start   ");
+  lcd.setCursor(0, 3);
+  lcd.print("Diff: ");
+  lcd.setCursor(6, 3);
+  lcd.print(getCurrentDifficult());
+  lcd.setCursor(8, 3);
+  lcd.print("            ");
 }
 
 void printGo()
@@ -110,15 +110,16 @@ void printGo()
 void printNumber(int number)
 {
   lcd.setCursor(0, 0);
-  lcd.print("Guess ->  "); 
+  lcd.print("Guess ->  ");
   lcd.setCursor(10, 0);
-  
-  if(number < 10){
-    lcd.print("0"); 
+
+  if (number < 10)
+  {
+    lcd.print("0");
   }
-  lcd.print(number); 
+  lcd.print(number);
   lcd.setCursor(12, 0);
-  lcd.print("              "); 
+  lcd.print("              ");
   lcd.setCursor(0, 1);
   lcd.print("                    ");
   lcd.setCursor(0, 2);
@@ -128,10 +129,12 @@ void printNumber(int number)
   lcd.setCursor(12, 3);
   auto time = getTimer();
   lcd.print(getTimer());
-  const int decs[] = {4,3,2,1};
+  const int decs[] = {4, 3, 2, 1};
   int curr = 12;
-  for (int dec:decs){
-    if(time < pow(10, dec)){
+  for (int dec : decs)
+  {
+    if (time < pow(10, dec))
+    {
       curr++;
       lcd.print(" ");
     }
@@ -147,7 +150,8 @@ void printGoodScore()
   lcd.setCursor(13, 1);
   auto score = getScore();
   lcd.print(score);
-  if ( score < 10 ){
+  if (score < 10)
+  {
     lcd.setCursor(14, 1);
     lcd.print(" ");
   }
@@ -183,7 +187,8 @@ void handleB1Press()
   long ts = millis();
   if (ts - prevB1PressCheck > INTERUPT_DELAY)
   {
-    if(isWaitingForStart()){
+    if (isWaitingForStart())
+    {
       startGame();
     }
     prevB1PressCheck = ts;
@@ -276,23 +281,25 @@ void testComponentLoop()
   }
 }
 
-void goToSleepMyLittleBaby(){
-  
+void goToSleepMyLittleBaby()
+{
+
   set_sleep_mode(SLEEP_MODE_PWR_DOWN); // sleep mode is set here
-  sleep_enable(); // enables the sleep bit in the mcucr register
+  sleep_enable();                      // enables the sleep bit in the mcucr register
   // so sleep is possible. just a safety pin
   // wakeUpNow when pin 2 gets LOW
   sleep_mode(); // here the device is actually put to sleep!!
   // THE PROGRAM CONTINUES FROM HERE AFTER WAKING UP
   sleep_disable(); // first thing after waking from sleep:
   // disable sleep...
+  startGame();
 
   // wakeUpNow code will not be executed
   // during normal running time.
 }
 
-void gotoSleepHandler(){
-  Serial.println("lalalala");
+void gotoSleepHandler()
+{
   setSleep();
 }
 
@@ -343,61 +350,7 @@ void restart_timer_1()
 // ISR for Timer 2 compare match
 ISR(TIMER1_COMPA_vect)
 {
-  handleMoveTimerEnd();  // User-defined function to handle the end of the timer
-}
-
-void update_timer_2(int milli_sec)
-{
-  long frequency = 1000 / milli_sec;          // Frequency in Hz
-  OCR2A = (16000000 / (1024 * frequency)) - 1; // Calculate the correct OCR2A value
-}
-
-void setup_timer_2(int milli_sec)
-{
-  // Disable interrupts
-  cli();
-  
-  TCCR2A = 0; // Clear TCCR2A register
-  TCCR2B = 0; // Clear TCCR2B register
-  TCNT2 = 0;  // Initialize counter value to 0
-
-  /*
-   * Set compare match register OCR2A based on the formula
-   * OCR2A = (16MHz / (PRESCALER * frequency)) - 1
-   * For a prescaler of 1024:
-   * OCR2A = (16MHz / (1024 * frequency)) - 1
-   */
-  update_timer_2(milli_sec);
-
-  // Set CTC mode
-  TCCR2A |= (1 << WGM21);
-
-  // Set CS22 and CS21 for 1024 prescaler
-  TCCR2B |= (1 << CS22) | (1 << CS21) | (1 << CS20);
-
-  // Enable timer compare interrupt
-  TIMSK2 |= (1 << OCIE2A);
-
-  // Enable interrupts
-  sei();
-}
-
-void stop_timer_2()
-{
-  // Clear the clock select bits to stop the timer (CS22, CS21, CS20 in TCCR2B)
-  TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
-}
-
-void restart_timer_2()
-{
-  // Resume the timer by setting the prescaler to 1024
-  TCCR2B |= (1 << CS22) | (1 << CS21) | (1 << CS20);
-}
-
-// ISR for Timer 2 compare match
-ISR(TIMER2_COMPA_vect)
-{
-  gotoSleepHandler();
+  handleMoveTimerEnd(); // User-defined function to handle the end of the timer
 }
 
 void setup()
@@ -422,13 +375,11 @@ void setup()
   if (!isTest)
   {
     attachInterrupt(digitalPinToInterrupt(buttons[0]), handleB1Press, RISING);
-    
     setup_timer_1(1000);
-    Serial.println("for fuck sake");
-    setup_timer_2(2000);
-    
   }
 }
+
+unsigned long lastButtonClick = 0;
 
 void loop()
 {
@@ -447,6 +398,17 @@ void loop()
     }
     else if (isWaitingForStart())
     {
+      for (int button : buttons)
+      {
+        if (digitalRead(button) == HIGH)
+        {
+          lastButtonClick = millis();
+        }
+      }
+      if (millis() - lastButtonClick > 10000)
+      {
+        setSleep();
+      }
       printWelcomeMessage();
       pulseStatusLed();
       updatePotentiometerDifficult();
@@ -464,7 +426,8 @@ void loop()
     {
       gameRoutine();
     }
-    else if (isWaitResult()){
+    else if (isWaitResult())
+    {
       stop_timer_1();
       move();
     }
