@@ -1,3 +1,10 @@
+/*
+Group members:
+Senni Mattia, 0001079869
+Fattori Fabio, 0001071463
+Tonelli Francesco, 0001071531
+*/
+
 #include "controllers.hpp"
 #include <LiquidCrystal_I2C.h>
 #include "math.h"
