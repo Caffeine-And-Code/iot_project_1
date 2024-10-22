@@ -189,12 +189,13 @@ void printNumber(int number)
   lcd.setCursor(0, 2);
   lcd.print("                    ");
   lcd.setCursor(0, 3);
-  lcd.print("MAX MILLIS: ");
-  lcd.setCursor(12, 3);
+  lcd.print("SEC: ");
+  lcd.setCursor(5, 3);
   auto time = getTimer();
-  lcd.print(getTimer());
+  auto rt = (int)ceil((time - (millis() - lastMancheStartTime))/1000);
+  lcd.print(rt);
   const int decs[] = {4, 3, 2, 1};
-  int curr = 12;
+  int curr = 5;
   for (int dec : decs)
   {
     if (time < pow(10, dec))
