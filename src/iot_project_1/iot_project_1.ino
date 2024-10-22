@@ -1,3 +1,8 @@
+/**
+ * The main arduino file
+ * @author Senni Mattia, Fattori Fabio, Tonelli Francesco
+ */
+
 #include "controllers.hpp"
 #include <LiquidCrystal_I2C.h>
 #include "math.h"
@@ -5,12 +10,21 @@
 
 #define GO_PROMPT_TIME 1000
 #define GAME_OVER_TIME 10000
+#define SLEEP_MODE_TIME 10000
 #define CORRECT_ANSWER_TIME 2000
 #define INTERUPT_DELAY 40
 
+/**
+ * When isTest is true, the application run's on test mode, that means
+ * that it do not start with the real application but it start a demo
+ * application that let the user check if components setup is corrects
+ *
+ * When isTest is false, just start the normal application
+ */
+const bool isTest = false;
+
 const int statusLed = 5;
 const int analogInPot = A2;
-const bool isTest = false;
 
 const int buttons[] = {3, 4, 6, 7};
 const int leds[] = {8, 9, 10, 11};
@@ -19,20 +33,66 @@ bool isButtonPressed[] = {false, false, false, false};
 // Status led Fading variables
 int brightness = 0;
 int fadeAmount = 12;
-int Fadedelay = 30;
-unsigned long lastMillis = 0;
-bool alrPrintedWelcome = false;
-bool alrPrintedNum = false;
 
+long prevB1PressCheck = 0;
+
+unsigned long lastButtonClick = 0;
+unsigned long lastMancheStartTime = 0;
+bool mancheTimerEndEventTriggered = false;
+
+/**
+ * When app is in verbose mode it enable logging using log function, else it do not display log
+ */
 const bool verbose = true;
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
+
+/**
+ * The setup and loop functions are in the bottom of the file
+ */
 
 void log(char *message)
 {
   if (verbose)
   {
     Serial.println(message);
+  }
+}
+
+void initSleepModeTimer()
+{
+  lastButtonClick = millis();
+}
+
+void checkSleepMode()
+{
+  for (int button : buttons)
+  {
+    if (digitalRead(button) == HIGH)
+    {
+      lastButtonClick = millis();
+    }
+  }
+  if (millis() - lastButtonClick > SLEEP_MODE_TIME)
+  {
+    setSleep();
+  }
+}
+
+void startMancheTimer()
+{
+  lastMancheStartTime = millis();
+  mancheTimerEndEventTriggered = false;
+}
+
+bool checkMancheTimer()
+{
+  const int actualTime = millis() - lastMancheStartTime;
+  if (!mancheTimerEndEventTriggered && actualTime >= getTimer())
+  {
+    // match finished
+    mancheTimerEndEventTriggered = true;
+    handleMoveTimerEnd();
   }
 }
 
@@ -202,8 +262,7 @@ void prepareForWakeUp()
 {
   lcd.backlight();
 }
-/// HANDLERS
-long prevB1PressCheck = 0;
+
 void handleB1Press()
 {
   long ts = millis();
@@ -258,11 +317,6 @@ void handleMoveTimerEnd()
   }
 }
 
-void hanndleSleepTimerEnd()
-{
-  setSleep();
-}
-
 int testPotentioMeterPV = 0;
 void testComponentLoop()
 {
@@ -300,63 +354,26 @@ void testComponentLoop()
   }
 }
 
-void goToSleepMyLittleBaby()
+void goToSleep()
 {
+  prepareSleepMode();
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sleep_enable();
   sleep_mode();
   sleep_disable();
+  prepareForWakeUp();
   startGame();
-}
-
-void gotoSleepHandler()
-{
-  setSleep();
-}
-
-void update_timer_1(int milli_sec)
-{
-  long frequency = 1000 / milli_sec; // Frequency in Hz
-  OCR1A = (16000000 / (1024 * frequency)) - 1;
-}
-
-void setup_timer_1(int milli_sec)
-{
-  cli();
-  TCCR1A = 0;
-  TCCR1B = 0;
-  TCNT1 = 0;
-
-  update_timer_1(milli_sec);
-
-  TCCR1B |= (1 << WGM12);
-  TCCR1B |= (1 << CS12) | (1 << CS10);
-  TIMSK1 |= (1 << OCIE1A);
-  sei();
-}
-
-void stop_timer_1()
-{
-  TCCR1B &= ~((1 << CS12) | (1 << CS11) | (1 << CS10));
-}
-
-void restart_timer_1()
-{
-  TCCR1B |= (1 << CS12) | (1 << CS10);
-}
-
-ISR(TIMER1_COMPA_vect)
-{
-  handleMoveTimerEnd();
 }
 
 void setup()
 {
+  // Init all buttons as input
   for (int button : buttons)
   {
     pinMode(button, INPUT);
   }
 
+  // Init all buttons as output
   for (int led : leds)
   {
     pinMode(led, OUTPUT);
@@ -366,84 +383,84 @@ void setup()
 
   Serial.begin(9600);
 
+  // Init Display and turn on the backlight
   lcd.init();
   lcd.backlight();
 
+  // If app is not running in test mode, attach all app Interrupt
+  // For checkout what is test mode, please refer to the relative comment on the top of the file
   if (!isTest)
   {
     attachInterrupt(digitalPinToInterrupt(buttons[0]), handleB1Press, RISING);
-    setup_timer_1(1000);
   }
 }
-
-unsigned long lastButtonClick = 0;
 
 void loop()
 {
   if (isTest)
   {
+    // If app start in test mode run test routine loop
     random(1, 10);
     testComponentLoop();
   }
   else
   {
+    // The game work as a state machine where for each different state it do something different
     if (isSleeping())
     {
-      prepareSleepMode();
-      goToSleepMyLittleBaby();
-      prepareForWakeUp();
-      lastButtonClick = millis();
+      // When app is in sleep enable sleep mode
+      goToSleep();
+      // Once sleep mode end, the game will go in wait for start state so init the sleep mode timer
+      initSleepModeTimer();
     }
     else if (isWaitingForStart())
     {
-      for (int button : buttons)
-      {
-        if (digitalRead(button) == HIGH)
-        {
-          lastButtonClick = millis();
-        }
-      }
-      if (millis() - lastButtonClick > 10000)
-      {
-        setSleep();
-      }
+      // If app is in wait for start he is waiting for a B1 press, then display Welcome message,
+      // pulse status led and listen for potentiometer variations
+      checkSleepMode();
       printWelcomeMessage();
       pulseStatusLed();
       updatePotentiometerDifficult();
     }
     else if (isAboutToStart())
     {
+      // In about to start app print GO message and once ready start manche timer
       printGo();
       turnoOfAllLeds();
       delay(GO_PROMPT_TIME);
       startGame();
-      update_timer_1(getTimer());
-      restart_timer_1();
+      startMancheTimer();
     }
     else if (isGameStarted())
     {
+      // The game routing listen for button press and turn on relativa led's.
+      // Then checkout manche timer for see if time is end
       gameRoutine();
+      checkMancheTimer();
     }
     else if (isWaitResult())
     {
-      stop_timer_1();
+      // When wait to result, use move() method for submit and check if user answer correct
       move();
     }
     else if (isCorrectAnswer())
     {
+      // If the previous check return success, congrats to user and display score number, then it restart manche timer for next round
+      // It automatically decrease the timer of an amount
       printGoodScore();
       delay(CORRECT_ANSWER_TIME);
       resume();
-      update_timer_1(getTimer());
-      restart_timer_1();
+      startMancheTimer();
     }
     else if (isGameOver())
     {
+      // When previous check return failure, print game over message with relative current score, then, initialize the game
       printGameOver(getScore());
       triggerStatusLed();
-      delay(5000);
+      delay(GAME_OVER_TIME);
       startGame();
-      lastButtonClick = millis();
+      // Restart wait for start sleep mode timer
+      initSleepModeTimer();
     }
   }
 }

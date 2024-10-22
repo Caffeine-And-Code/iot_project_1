@@ -1,3 +1,6 @@
+/**
+ * @author Senni Mattia, Fattori Fabio, Tonelli Francesco
+ */
 #include "DifficultFunc.hpp"
 
 #define NUMBERS_OF_DIFFICULTIES 6
@@ -9,18 +12,24 @@
 
 int difficulty = 0;
 
-int getDifficult() {
+int getDifficult()
+{
     return difficulty;
 }
 
-void setDifficult(int value) {
-    if (value >= ANALOG_MIN_VALUE && value <= ANALOG_MAX_VALUE) {
-        for(int i = 0; i < NUMBERS_OF_DIFFICULTIES; i++) {
-            int calculatedValue = (ANALOG_MAX_VALUE / NUMBERS_OF_DIFFICULTIES) * (i+1);
-            if(i == NUMBERS_OF_DIFFICULTIES - 1) {
+void setDifficult(int value)
+{
+    if (value >= ANALOG_MIN_VALUE && value <= ANALOG_MAX_VALUE)
+    {
+        for (int i = 0; i < NUMBERS_OF_DIFFICULTIES; i++)
+        {
+            int calculatedValue = (ANALOG_MAX_VALUE / NUMBERS_OF_DIFFICULTIES) * (i + 1);
+            if (i == NUMBERS_OF_DIFFICULTIES - 1)
+            {
                 calculatedValue = ANALOG_MAX_VALUE;
             }
-            if(value <= calculatedValue) {
+            if (value <= calculatedValue)
+            {
                 difficulty = i + 1;
                 return;
             }
@@ -28,7 +37,8 @@ void setDifficult(int value) {
     }
 }
 
-int getMillisecondsBasedByScore(int score) {
+int getMillisecondsBasedByScore(int score)
+{
     int time = MILLISECONDS_STARTING_VALUE - (MILLISECONDS_STARTING_VALUE * (((double)score) / 100.0 * difficulty * 2));
     return time < 0 ? 0 : time;
 }

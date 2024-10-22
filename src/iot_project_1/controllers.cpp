@@ -1,3 +1,6 @@
+/**
+ * @author Senni Mattia, Fattori Fabio, Tonelli Francesco
+ */
 #include "guessNumber.hpp"
 #include "controllers.hpp"
 #include "DifficultFunc.hpp"
@@ -18,8 +21,9 @@ short unsigned int gameState = WAITING_FOR_START;
 // 1 -> Sleep Mode
 // 2 -> About To Start
 // 3 -> In Game
-// 4 -> CorrectAnswer
+// 4 -> Correct Answer
 // 5 -> Game Over
+// 6 -> Wait for Result
 
 int currentScore = 0;
 
@@ -185,7 +189,7 @@ int extractNumber()
 
 void resetLed()
 {
-    for (bool &led : ledValues) 
+    for (bool &led : ledValues)
     {
         led = false;
     }
