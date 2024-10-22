@@ -84,9 +84,9 @@ void printWelcomeMessage()
   lcd.setCursor(0, 0);
   lcd.print("Welcome to          ");
   lcd.setCursor(0, 1);
-  lcd.print("Guess My Binary!    ");
+  lcd.print("GMB!                ");
   lcd.setCursor(0, 2);
-  lcd.print("Press B1 to start   ");
+  lcd.print("Press B1 to Start   ");
   lcd.setCursor(0, 3);
   lcd.print("Diff: ");
   lcd.setCursor(6, 3);
@@ -100,7 +100,7 @@ void printGo()
   lcd.setCursor(0, 0);
   lcd.print("                    ");
   lcd.setCursor(0, 1);
-  lcd.print("        GO!         ");
+  lcd.print("        Go!         ");
   lcd.setCursor(0, 2);
   lcd.print("                    ");
   lcd.setCursor(0, 3);
